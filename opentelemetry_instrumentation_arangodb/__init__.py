@@ -34,11 +34,12 @@ class ArangoDBInstrumentor(BaseInstrumentor):
         @functools.wraps(self._original_method)
         def instrumented_execute(*args, **kwargs):
             query = args[1] if len(args) > 1 else kwargs.get('query', 'Unknown query')
+            dbname = args[0].db_name if len(args) > 0 else kwargs.get('db_name', 'Unknown db')
             with tracer.start_as_current_span("ArangoDB Execute", kind=SpanKind.CLIENT) as span:
-                span.set_attribute("db.system", "arangodb")
+                span.set_attribute("db.name", dbname)
                 span.set_attribute("db.query", query)
                 if kwargs.get('bind_vars'):
-                    span.set_attribute("db.bind_vars", kwargs.get('bind_vars'))
+                    span.set_attribute("db.bind_vars", str(kwargs.get('bind_vars')))
                 try:
                     result = self._original_method(*args, **kwargs)
                     span.set_status(StatusCode.OK)
@@ -54,7 +55,7 @@ class ArangoDBInstrumentor(BaseInstrumentor):
                         for key, value in result.statistics().items():
                             span.set_attribute("db." + key, value)
                     if result.warnings():
-                        span.set_attribute("db.warnings", result.warnings())
+                        span.set_attribute("db.warnings", str(result.warnings()))
                 except Exception as e:
                     logger.debug("Error setting trace attributes: %s", e)
                 return result
