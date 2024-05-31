@@ -17,7 +17,7 @@ setup(
     },
     entry_points={
         "opentelemetry_instrumentor": [
-            "arangodb = opentelemetry_instrumentation_arangodb.arangodb_instrumentor:ArangoDBInstrumentor"
+            "arangodb = opentelemetry_instrumentation_arangodb:ArangoDBInstrumentor"
         ]
     },
 )

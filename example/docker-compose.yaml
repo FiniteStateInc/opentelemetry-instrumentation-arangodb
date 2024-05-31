@@ -7,7 +7,4 @@ services:
     ports:
       - 8529:8529
     volumes:
-      - arangodb_data:/var/lib/arangodb3
-
-volumes:
-  arangodb_data:
+      - ./seed:/docker-entrypoint-initdb.d
